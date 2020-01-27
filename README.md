@@ -13,7 +13,7 @@ Shelly is a **very basic** shell that I wrote to teach myself more about C and P
 
 # Compile
 ```sh
-$ make
+$ cmake . && make
 ```
 
 # Usage
