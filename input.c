@@ -24,6 +24,23 @@ char *input(const char *q)
     return strdup(line);
 }
 
+void *tok_add(char **arr, char *token, int *size, int i)
+{
+    arr[i++] = strdup(token);
+    /* Grow buffer if needed */
+    if (i >= *size)
+    {
+        *size = *size + BUF_SIZE;
+        arr = realloc(arr, *size * sizeof(char *));
+        if (arr == NULL)
+        {
+            /* FATAL ERROR */
+            exit(-1);
+        }
+    }
+    return arr;
+}
+
 
 char **tokenize(const char *line)
 {
@@ -60,16 +77,8 @@ char **tokenize(const char *line)
             {
                 /* Store the token and grow buffer if necessary */
                 token[tok_pos] = '\0';
-                tokens[tot_tok_num++] = strdup(token);
-                if (tot_tok_num >= tokens_buf_size - 1)
-                {
-                    tokens_buf_size += BUF_SIZE;
-                    tokens = realloc(tokens, tokens_buf_size * sizeof(char *));
-                    if (tokens == NULL)
-                    {
-                        return NULL;
-                    }
-                }
+                tokens = tok_add(tokens, token, &tokens_buf_size, tot_tok_num++);
+
                 /* Reset the token vars and allocate new space */
                 tok_pos = 0;
                 token[tok_pos] = '\0';
@@ -97,7 +106,7 @@ char **tokenize(const char *line)
     {
         /* Copy the last token if it exists */
         token[tok_pos] = '\0';
-        tokens[tot_tok_num++] = strdup(token);
+        tokens = tok_add(tokens, token, &tokens_buf_size, tot_tok_num++);
     }
     tokens[tot_tok_num] = NULL;
     return tokens;
