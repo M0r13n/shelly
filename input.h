@@ -3,7 +3,26 @@
 
 #define BUF_SIZE 256
 
-#include <sys/types.h>
+
+/**
+ * Tell the GNU Readline library how to complete.
+ * Currently Shelly supports command completion for built in commands and filename completion.
+ */
+void initialize_readline();
+
+/**
+ * Attempt to complete on the contents of TEXT.
+ * START and END show the region of text to complete.
+ * Return the array of matches if any or NULL if None.
+ */
+char **command_name_completion(const char *text, int start, int end);
+
+/**
+ * Generator function for command completion.
+ * TEXT is the text to complete.
+ * STATE is the number of iterations so far (zero on first call).
+ */
+char *command_name_generator(const char *text, int state);
 
 /**
  * Asks for some input and returns the values from stdin.

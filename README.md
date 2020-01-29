@@ -20,7 +20,7 @@ Shelly is a **very basic** shell that I wrote to teach myself more about C and P
 - [x] Is able to launch processes
 - [x] Supports whitespace escaping
 - [x] History
-- [x] Autocompletion (simple filenames)
+- [x] Autocompletion (filenames and built in commands)
 - [ ] Piping
 - [ ] Redirection
 

@@ -5,6 +5,8 @@
 
 int main()
 {
+    initialize_readline();
+
     char *line;
     char **args;
     int status = 1;
