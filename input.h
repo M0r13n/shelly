@@ -6,11 +6,11 @@
 #include <sys/types.h>
 
 /**
- * Copy of Python's input() method.
  * Asks for some input and returns the values from stdin.
  * Removes tailing newlines.
+ * Adds lines to history.
  */
-char *input(const char *q);
+char *rl_gets(const char *s);
 
 /**
  * Tokenize a line of text.

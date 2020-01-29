@@ -2,7 +2,6 @@
 #include "utils.h"
 #include "process.h"
 #include <stdlib.h>
-#include <editline/readline.h>
 
 int main()
 {
@@ -12,14 +11,9 @@ int main()
 
     while (status)
     {
-        line = readline(">>> ");
-        add_history(line);
-
+        line = rl_gets(">>>");
         args = tokenize(line);
-
-        print_2D(args);
         status = execute(args);
-
         free(line);
         free_2D(args);
     }

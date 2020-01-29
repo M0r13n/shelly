@@ -1,7 +1,28 @@
 #include "input.h"
 #include <stdlib.h>
 #include <string.h>
+#include <editline/readline.h>
 
+static char *line_read = (char *) NULL;
+
+char *rl_gets(const char *s)
+{
+    /* Free allocated buffer if it exists */
+    if (line_read)
+    {
+        free(line_read);
+        line_read = (char *) NULL;
+    }
+
+    /* Ask for input */
+    line_read = readline(s);
+
+    /* Save non empty lines */
+    if (line_read && *line_read)
+        add_history(line_read);
+
+    return strdup(line_read);
+}
 
 void *tok_add(char **arr, char *token, int *size, int i)
 {
