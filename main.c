@@ -16,6 +16,8 @@ int main()
         add_history(line);
 
         args = tokenize(line);
+
+        print_2D(args);
         status = execute(args);
 
         free(line);

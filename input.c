@@ -1,28 +1,7 @@
 #include "input.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
-
-char *input(const char *q)
-{
-    int chars;
-    char *line = NULL;
-    size_t buf_size = 0;
-
-    printf("%s", q);
-    chars = getline(&line, &buf_size, stdin);
-    if (chars == -1)
-    {
-        return "";
-    }
-    /* Remove tailing newlines */
-    if ((line)[chars - 1] == '\n')
-    {
-        (line)[chars - 1] = '\0';
-    }
-    return strdup(line);
-}
 
 void *tok_add(char **arr, char *token, int *size, int i)
 {
@@ -88,7 +67,11 @@ char **tokenize(const char *line)
         }
 
         /* Enter or leave escape mode */
-        escaped = (cur_chr == '\"') ? 1 - escaped : escaped;
+        if (cur_chr == '\"')
+        {
+            escaped = 1 - escaped;
+            continue;
+        }
 
         /* Store the char and grow buffer if necessary */
         token[tok_pos++] = cur_chr;
