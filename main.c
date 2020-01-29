@@ -5,6 +5,7 @@
 
 int main()
 {
+    /* Add some custom autocomplete functions */
     initialize_readline();
 
     char *line;
@@ -13,7 +14,7 @@ int main()
 
     while (status)
     {
-        line = rl_gets(">>>");
+        line = rl_gets(">>> ");
         args = tokenize(line);
         status = execute(args);
         free(line);

@@ -22,6 +22,7 @@ char **command_name_completion(const char *text, int start, int end)
 
     matches = (char **) NULL;
 
+    /* Only the first word can be a command */
     if (start == 0)
         matches = completion_matches(text, command_name_generator);
 
