@@ -60,7 +60,7 @@ int _cd(char **args)
 {
     if (args[1] == NULL)
     {
-        fprintf(stderr, "shelly: expected argument to \"cd\"\n");
+        fprintf(stderr, "cd needs an argument\n");
     }
     else
     {
@@ -74,8 +74,6 @@ int _cd(char **args)
 
 int _help(char **args)
 {
-    int i;
-
     printf("    +---------------------------------------------------------------------+\n"
            "    |                                                                     |\n"
            "    |   _____ _          _ _                                              |  \n"

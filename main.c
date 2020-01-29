@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "process.h"
 #include <stdlib.h>
-
+#include <editline/readline.h>
 
 int main()
 {
@@ -12,7 +12,9 @@ int main()
 
     while (status)
     {
-        line = input(">>> ");
+        line = readline(">>> ");
+        add_history(line);
+
         args = tokenize(line);
         status = execute(args);
 
