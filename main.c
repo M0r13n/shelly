@@ -1,6 +1,5 @@
 #include "input.h"
-#include "utils.h"
-#include "process.h"
+#include "parse.h"
 #include <stdlib.h>
 
 int main()
@@ -9,16 +8,13 @@ int main()
     initialize_readline();
 
     char *line;
-    char **args;
     int status = 1;
 
     while (status)
     {
         line = rl_gets(">>> ");
-        args = tokenize(line);
-        status = execute(args);
+        status = execute_commands(line);
         free(line);
-        free_2D(args);
     }
     return 0;
 }

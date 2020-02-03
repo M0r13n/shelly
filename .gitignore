@@ -5,3 +5,4 @@ CMakeFiles/
 CMakeCache.txt
 *.cmake
 /shelly
+*.cbp

@@ -53,18 +53,6 @@ char *str_list_cat(char **strings, char delimiter)
 }
 
 
-void free_2D(char **arr)
-{
-    char *s;
-    int cur = 0;
-    while ((s = arr[cur++]) != NULL)
-    {
-        free(s);
-    }
-    free(arr);
-}
-
-
 void print_2D(char **tokens)
 {
     printf("%s\n", str_list_cat(tokens, ','));

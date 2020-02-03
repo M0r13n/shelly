@@ -177,6 +177,33 @@ main.c.s:
 	$(MAKE) -f CMakeFiles/shelly.dir/build.make CMakeFiles/shelly.dir/main.c.s
 .PHONY : main.c.s
 
+parse.o: parse.c.o
+
+.PHONY : parse.o
+
+# target to build an object file
+parse.c.o:
+	$(MAKE) -f CMakeFiles/shelly.dir/build.make CMakeFiles/shelly.dir/parse.c.o
+.PHONY : parse.c.o
+
+parse.i: parse.c.i
+
+.PHONY : parse.i
+
+# target to preprocess a source file
+parse.c.i:
+	$(MAKE) -f CMakeFiles/shelly.dir/build.make CMakeFiles/shelly.dir/parse.c.i
+.PHONY : parse.c.i
+
+parse.s: parse.c.s
+
+.PHONY : parse.s
+
+# target to generate assembly for a file
+parse.c.s:
+	$(MAKE) -f CMakeFiles/shelly.dir/build.make CMakeFiles/shelly.dir/parse.c.s
+.PHONY : parse.c.s
+
 process.o: process.c.o
 
 .PHONY : process.o
@@ -246,6 +273,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... parse.o"
+	@echo "... parse.i"
+	@echo "... parse.s"
 	@echo "... process.o"
 	@echo "... process.i"
 	@echo "... process.s"

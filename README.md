@@ -39,8 +39,8 @@ $ ./shelly
 # How does it work?
 The following is a small and incomplete writeup for me to consolidate what i've learned.
 
-There are currently four different C files: **main.c**, **input.c**, **process.c**, and **utils.c**.
 
+### Autocompletion
 When the program is started, **main.c** is executed.
 
 First of all `initialize_readline();` is called once.
@@ -66,5 +66,50 @@ Text is the partial word to complete. When there are no possibilities left it re
 **Note**: If `command_name_completion` is called for any other than the first word, it returns `(char **) NULL;`.
 This enables fallback to filename completion built into readline.
 
+### Pipes
+
+A **pipe** is used to connect the standard input *stdin* of one process to the standard output *stdout* of another.
+Pipes are used since early versions of UNIX. They are often used like this:
+
+```sh
+$ ls | sort | grep Music
+```
+
+The above chain of commands pipes the output of `ls` to `sort` and then from sort to `grep`.
+
+**Some facts about pipes:**
+- Pipes are unidirectional. A process can either write to or read to from a pipe, **but not both**.
+This is called a *half duplex* pipe. If we want to create a bidirectional (*full duplex*) pipe, we need two pipes.sh
+- Pipes can only be established between process with the same parents. Normally a pipe is created by calling `fork()` from a parent process.
+Which leaves two processes (*parent* and *child*)
+
+
+###### The `pipe` syscall
+A pipe is created with the following syscall:
+
+```C
+#include <unistd. h.>
+int pipe( int fd[2] );
+```
+
+The function returns `0` on success and `-1` on error.
+Note that there are two file descriptors:
+
+- `fd[0]` is used for reading from the pipe
+- `fd[1]` is used for writing to the pipe
+
+Having those file descriptors inside the same process is not terrible useful.
+This way to process can send data to itself. Instead we fork after we created the pipe.
+This way both processes have local copies of `fd[0]` and `fd[1]`. The only thing left to do,
+is do signal which process should write and which process should read. This is done by closing the unused descriptor.
+
+Parent process writes / child reads : Parent closes  `fd[0]` and child closes  `fd[1]`.
+
+# Good Reads
+
+- [GNU READLINE](http://web.mit.edu/gnu/doc/html/rlman_2.html)
+- [Shelly Basics (Build your own shell)](https://brennan.io/2015/01/16/write-a-shell-in-c/)
+- [Pipes](https://www.tldp.org/LDP/lpg/node11.html)
+- [Pipes (german)](http://openbook.rheinwerk-verlag.de/linux_unix_programmierung/Kap09-002.htm)
 
 
