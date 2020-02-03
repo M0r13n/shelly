@@ -11,9 +11,9 @@ extern int (*builtin_func[])(char **);
  * Accepts a list of arguments that are executed by the child.
  * Example: echo hello -> forks and calls echo with "hello" as an argument.
  */
-int launch(char **args);
+int launch(char **args, int fd_in, int pipe_out);
 
-int execute(char **args);
+int execute(char **args, int fd_in, int pipe_out);
 
 int _cd(char **args);
 

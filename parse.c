@@ -1,9 +1,12 @@
 #include "input.h"
 #include "process.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 static char **args = NULL;
+static int FD_IN;
+static int PIPE_OUT;
 
 void free_2D(char **arr)
 {
@@ -109,27 +112,36 @@ void tokenize(const char *line)
 int run_command(const char *line)
 {
     tokenize(line);
-    int r = execute(args);
+    int r = execute(args, FD_IN, PIPE_OUT);
     free_2D(args);
     return r;
 }
 
+static void reset()
+{
+    FD_IN = 0;
+    PIPE_OUT = 0;
+}
 
 int execute_commands(const char *line)
 {
     const char specials[] = "|;&";
     char *cur = strdup(line);
     char *next = strpbrk(cur, specials);
+    reset();
 
     while (next != NULL)
     {
+        PIPE_OUT = *next == '|';
         *next = '\0';
-        if (!run_command(cur))
+        FD_IN = run_command(cur);
+        if (!PIPE_OUT)
         {
-            return 0;
+            FD_IN = 0;
         }
         cur = next + 1;
         next = strpbrk(cur, specials);
     }
+    PIPE_OUT = 0;
     return run_command(cur);
 }
