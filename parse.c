@@ -1,46 +1,31 @@
 #include "input.h"
 #include "process.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
-static char **args = NULL;
 static int FD_IN;
 static int PIPE_OUT;
+const char specials[] = "|;&";
 
-void free_2D(char **arr)
+void tok_add(char **args, char *token, int i)
 {
-    char *s;
-    int cur = 0;
-    while ((s = arr[cur++]) != NULL)
+    if (i > 512)
     {
-        free(s);
+        exit(-5);
     }
-    free(arr);
-}
-
-void tok_add(char *token, int *size, int i)
-{
-    args[i++] = strdup(token);
-    /* Grow buffer if needed */
-    if (i >= *size)
+    if (token == NULL)
     {
-        *size = *size + BUF_SIZE;
-        args = realloc(args, *size * sizeof(char *));
-        if (args == NULL)
-        {
-            /* FATAL ERROR */
-            exit(-1);
-        }
+        args[i] = NULL;
+        return;
     }
+    args[i] = strdup(token);
 }
 
 
-void tokenize(const char *line)
+void tokenize(char **args, const char *line)
 {
     /* Buffer sizes for both the current token and the list of tokens */
     int token_buf_siz = BUF_SIZE;
-    int tokens_buf_size = BUF_SIZE;
 
     /* Variables for iterating over line */
     char cur_chr;
@@ -54,8 +39,7 @@ void tokenize(const char *line)
 
     /* Buffers */
     char *token = malloc(token_buf_siz);
-    args = malloc(tokens_buf_size * sizeof(char *));
-    if (args == NULL || token == NULL)
+    if (token == NULL)
     {
         exit(-1);
     }
@@ -71,11 +55,10 @@ void tokenize(const char *line)
             {
                 /* Store the token and grow buffer if necessary */
                 token[tok_pos] = '\0';
-                tok_add(token, &tokens_buf_size, tot_tok_num++);
+                tok_add(args, token, tot_tok_num++);
 
                 /* Reset the token vars and allocate new space */
                 tok_pos = 0;
-                token[tok_pos] = '\0';
                 token_buf_siz = BUF_SIZE;
             }
             continue;
@@ -93,7 +76,7 @@ void tokenize(const char *line)
         if (tok_pos >= token_buf_siz)
         {
             token_buf_siz += BUF_SIZE;
-            token = realloc(token, token_buf_siz * sizeof(char));
+            token = realloc(token, token_buf_siz);
             if (token == NULL)
             {
                 exit(-1);
@@ -104,17 +87,16 @@ void tokenize(const char *line)
     {
         /* Copy the last token if it exists */
         token[tok_pos] = '\0';
-        tok_add(token, &tokens_buf_size, tot_tok_num++);
+        tok_add(args, token, tot_tok_num++);
     }
-    args[tot_tok_num] = NULL;
+    tok_add(args, NULL, tot_tok_num);
 }
 
 int run_command(const char *line)
 {
-    tokenize(line);
-    int r = execute(args, FD_IN, PIPE_OUT);
-    free_2D(args);
-    return r;
+    char *args[512];
+    tokenize(args, line);
+    return execute(args, FD_IN, PIPE_OUT);
 }
 
 static void reset()
@@ -125,7 +107,6 @@ static void reset()
 
 int execute_commands(const char *line)
 {
-    const char specials[] = "|;&";
     char *cur = strdup(line);
     char *next = strpbrk(cur, specials);
     reset();

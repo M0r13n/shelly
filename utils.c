@@ -52,6 +52,17 @@ char *str_list_cat(char **strings, char delimiter)
     return string;
 }
 
+void free_2D(char **arr)
+{
+    char *s;
+    int cur = 0;
+    while ((s = arr[cur++]) != NULL)
+    {
+        free(s);
+    }
+    free(arr);
+}
+
 
 void print_2D(char **tokens)
 {
