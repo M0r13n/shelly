@@ -1,5 +1,5 @@
-#include "input.h"
 #include "process.h"
+#include "parse.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -9,9 +9,9 @@ const char specials[] = "|;&";
 
 void tok_add(char **args, char *token, int i)
 {
-    if (i > 512)
+    if (i > MAX_ARGS)
     {
-        exit(-5);
+        exit(ERR_MAX_ARGS);
     }
     if (token == NULL)
     {
@@ -21,6 +21,26 @@ void tok_add(char **args, char *token, int i)
     args[i] = strdup(token);
 }
 
+void *malloc_safe(void *ptr, size_t siz)
+{
+    ptr = malloc(siz);
+    if (ptr == NULL)
+    {
+        exit(ERR_MALLOC);
+    }
+    return ptr;
+}
+
+
+void *realloc_safe(void *ptr, size_t siz)
+{
+    ptr = realloc(ptr, siz);
+    if (ptr == NULL)
+    {
+        exit(-1);
+    }
+    return ptr;
+}
 
 void tokenize(char **args, const char *line)
 {
@@ -28,9 +48,8 @@ void tokenize(char **args, const char *line)
     int token_buf_siz = BUF_SIZE;
 
     /* Variables for iterating over line */
-    char cur_chr;
+    int cur_chr = 0, cur = 0, escaped = 0;
 
-    int cur = 0, escaped = 0;
     /* Number of chars in current token */
     int tok_pos = 0;
 
@@ -38,11 +57,7 @@ void tokenize(char **args, const char *line)
     int tot_tok_num = 0;
 
     /* Buffers */
-    char *token = malloc(token_buf_siz);
-    if (token == NULL)
-    {
-        exit(-1);
-    }
+    char *token = malloc_safe(&token, token_buf_siz);
 
     /* Iterate over line char by char */
     while ((cur_chr = line[cur++]) != '\0')
@@ -53,7 +68,7 @@ void tokenize(char **args, const char *line)
             /* Skip duplicate delimiters */
             if (tok_pos > 0)
             {
-                /* Store the token and grow buffer if necessary */
+                /* Store the token */
                 token[tok_pos] = '\0';
                 tok_add(args, token, tot_tok_num++);
 
@@ -72,15 +87,11 @@ void tokenize(char **args, const char *line)
         }
 
         /* Store the char and grow buffer if necessary */
-        token[tok_pos++] = cur_chr;
+        token[tok_pos++] = (char) cur_chr;
         if (tok_pos >= token_buf_siz)
         {
             token_buf_siz += BUF_SIZE;
-            token = realloc(token, token_buf_siz);
-            if (token == NULL)
-            {
-                exit(-1);
-            }
+            token = realloc_safe(token, token_buf_siz);
         }
     }
     if (tok_pos)
@@ -94,7 +105,7 @@ void tokenize(char **args, const char *line)
 
 int run_command(const char *line)
 {
-    char *args[512];
+    char *args[MAX_ARGS];
     tokenize(args, line);
     return execute(args, FD_IN, PIPE_OUT);
 }
