@@ -3,10 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Flags */
 static int PIPE_IN;
 static int PIPE_OUT;
 const char specials[] = "|;&";
 
+/**
+ * Adds a token into a 2D array.
+ * Bounds are checked.
+ */
 void tok_add(char **args, char *token, int i)
 {
     if (i > MAX_ARGS)
@@ -21,6 +26,9 @@ void tok_add(char **args, char *token, int i)
     args[i] = strdup(token);
 }
 
+/**
+ * Wrapper around malloc, that exits the program if malloc fails.
+ */
 void *malloc_safe(void *ptr, size_t siz)
 {
     ptr = malloc(siz);
@@ -32,6 +40,9 @@ void *malloc_safe(void *ptr, size_t siz)
 }
 
 
+/**
+ * Wrapper around realloc, that exits the program if realloc fails.
+ */
 void *realloc_safe(void *ptr, size_t siz)
 {
     ptr = realloc(ptr, siz);
@@ -42,6 +53,10 @@ void *realloc_safe(void *ptr, size_t siz)
     return ptr;
 }
 
+/**
+ * Tokenizes a string.
+ * Splits the string into tokens separated by single space.
+ */
 void tokenize(char **args, const char *line)
 {
     /* Buffer sizes for both the current token and the list of tokens */
@@ -103,6 +118,9 @@ void tokenize(char **args, const char *line)
     tok_add(args, NULL, tot_tok_num);
 }
 
+/**
+ * Execute a single command
+ */
 int run_command(const char *line)
 {
     char *args[MAX_ARGS];
@@ -110,12 +128,18 @@ int run_command(const char *line)
     return execute(args, PIPE_IN, PIPE_OUT);
 }
 
+/**
+ * Reset all Flags.
+ */
 static void reset()
 {
     PIPE_IN = 0;
     PIPE_OUT = 0;
 }
 
+/**
+ * Execute multiple commands from a single line.
+ */
 int execute_commands(const char *line)
 {
     char *cur = strdup(line);

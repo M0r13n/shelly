@@ -21,7 +21,7 @@ Shelly is a **very basic** shell that I wrote to teach myself more about C and P
 - [x] Supports whitespace escaping
 - [x] History
 - [x] Autocompletion (filenames and built in commands)
-- [ ] Piping
+- [x] Piping
 - [ ] Redirection
 
 
