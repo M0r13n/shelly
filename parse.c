@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int FD_IN;
+static int PIPE_IN;
 static int PIPE_OUT;
 const char specials[] = "|;&";
 
@@ -107,12 +107,12 @@ int run_command(const char *line)
 {
     char *args[MAX_ARGS];
     tokenize(args, line);
-    return execute(args, FD_IN, PIPE_OUT);
+    return execute(args, PIPE_IN, PIPE_OUT);
 }
 
 static void reset()
 {
-    FD_IN = 0;
+    PIPE_IN = 0;
     PIPE_OUT = 0;
 }
 
@@ -126,10 +126,10 @@ int execute_commands(const char *line)
     {
         PIPE_OUT = *next == '|';
         *next = '\0';
-        FD_IN = run_command(cur);
+        PIPE_IN = run_command(cur);
         if (!PIPE_OUT)
         {
-            FD_IN = 0;
+            PIPE_IN = 0;
         }
         cur = next + 1;
         next = strpbrk(cur, specials);
