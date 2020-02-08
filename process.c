@@ -3,18 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include "process.h"
+#include <limits.h>
 
 
 char *builtin_str[] = {
         "cd",
         "help",
-        "exit"
+        "exit",
+        "pwd"
 };
 
 int (*builtin_func[])(char **) = {
         &_cd,
         &_help,
-        &__exit
+        &__exit,
+        &_pwd
 };
 
 int builtins()
@@ -126,6 +129,22 @@ int _help(char **args)
 int __exit(char **args)
 {
     exit(0);
+}
+
+
+int _pwd(char **args)
+{
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        printf("%s\n", cwd);
+        return 1;
+    }
+    else
+    {
+        perror("getcwd() error");
+        return 0;
+    }
 }
 
 int execute(char **args, int fd_in, int pipe_out, char *outfilename)

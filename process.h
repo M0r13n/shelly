@@ -47,6 +47,11 @@ int _help(char **args);
  */
 int __exit(char **args);
 
+/**
+ * Builtin method for getting the current dir.
+ */
+int _pwd();
+
 int builtins();
 
 
