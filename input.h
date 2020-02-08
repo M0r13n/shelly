@@ -2,6 +2,8 @@
 #define SHELLY_INPUT_H
 
 #define BUF_SIZE 256
+#define ANSI_BLUE "\x1b[34m"
+#define ANSI_RESET "\x1b[0m"
 
 
 /**
@@ -30,6 +32,18 @@ char *command_name_generator(const char *text, int state);
  * Adds lines to history.
  */
 char *rl_gets(const char *s);
+
+/**
+ * Get the current folder.
+ * Folders are tracked for better efficiency.
+ */
+char *cur_folder();
+
+/**
+ * Set the current folder.
+ * Folders are tracked for better efficiency.
+ */
+void set_folder(char *name);
 
 
 #endif

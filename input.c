@@ -2,9 +2,60 @@
 #include "process.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <limits.h>
 #include <editline/readline.h>
 
 static char *line_read = (char *) NULL;
+
+/* The folder is stored and updated manually so that repeated access is fast.
+ * Calling get_folder would be inefficient, because the full path needs to be traversed every time the method is called.
+ * */
+static char *FOLDER = (char *) NULL;
+
+char *get_folder()
+{
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+    {
+        perror("getcwd() error");
+        return NULL;
+    }
+
+    char *pch;
+    char *last = cwd;
+    pch = strchr(cwd, '/');
+    while (1)
+    {
+        pch = strchr(pch + 1, '/');
+        if (pch == NULL)
+        {
+            break;
+        }
+        last = pch;
+    }
+
+    return strdup(last + 1);
+}
+
+void set_folder(char *name)
+{
+    FOLDER = strdup(name);
+}
+
+char *cur_folder()
+{
+    if (FOLDER == NULL || strstr(FOLDER, ".."))
+    {
+        FOLDER = get_folder();
+    }
+    if (strlen(FOLDER) == 0)
+    {
+        FOLDER = "~";
+    }
+    return FOLDER;
+}
 
 void initialize_readline()
 {

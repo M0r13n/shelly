@@ -2,8 +2,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "process.h"
 #include <limits.h>
+#include "process.h"
+#include "input.h"
 
 
 char *builtin_str[] = {
@@ -105,6 +106,8 @@ int _cd(char **args)
             perror("lsh");
         }
     }
+    /* Update the current folder */
+    set_folder(args[1]);
     return 1;
 }
 
