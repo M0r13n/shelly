@@ -22,7 +22,7 @@ Shelly is a **very basic** shell that I wrote to teach myself more about C and P
 - [x] History
 - [x] Autocompletion (filenames and built in commands)
 - [x] Piping
-- [ ] Redirection
+- [x] Redirection
 
 
 # Compile
@@ -35,6 +35,26 @@ $ cmake . && make
 $ ./shelly
 ```
 
+# Examples
+
+```sh
+>>> ls -l | wc -c > somefile.out
+```
+```sh
+>>> ls -l | grep shelly > somefile.out
+```
+```sh
+>>> tail -2 somefile.out > somefile.out
+```
+```sh
+>>> echo "Hello Over there" > somefile.out
+```
+```sh
+>>> cat main.c | grep a > somefile.out
+```
+```sh
+>>> curl -L google.com > google.html
+```
 
 # How does it work?
 The following is a small and incomplete writeup for me to consolidate what i've learned.

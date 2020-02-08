@@ -8,12 +8,11 @@ int main()
     initialize_readline();
 
     char *line;
-    int status = 1;
 
-    while (status)
+    while (1)
     {
         line = rl_gets(">>> ");
-        status = execute_commands(line);
+        execute_commands(line);
         free(line);
     }
     return 0;

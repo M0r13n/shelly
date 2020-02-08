@@ -23,16 +23,19 @@ int builtins()
 }
 
 
-int launch(char **args, int fd_in, int pipe_out)
+int launch(char **args, int fd_in, int pipe_out, char *outfilename)
 {
     pid_t pid, w_pid;
     int status = 0;
     int fds[2];
 
+    /* Create a pipe before forking, so that both the child/parent have access to it */
     pipe(fds);
     pid = fork();
+
     if (pid == 0)
     {
+        /* Child process, e.g. the program to launch */
         if (pipe_out)
         {
             dup2(fds[1], STDOUT_FILENO);
@@ -41,6 +44,11 @@ int launch(char **args, int fd_in, int pipe_out)
         if (fd_in > 0)
         {
             dup2(fd_in, STDIN_FILENO);
+        }
+
+        if (outfilename != NULL)
+        {
+            freopen(outfilename, "a+", stdout);
         }
 
         /* Replace the current program with a new one */
@@ -54,7 +62,7 @@ int launch(char **args, int fd_in, int pipe_out)
 
     else if (pid > 0)
     {
-        /* Parent process */
+        /* Parent process needs to wait for all children to finish */
         do
         {
             w_pid = waitpid(pid, &status, WUNTRACED);
@@ -66,16 +74,17 @@ int launch(char **args, int fd_in, int pipe_out)
         perror("Fork failed\n");
     }
 
+    /* If the input pipe is still open close it */
     if (fd_in > 0)
         close(fd_in);
 
+    /* Close WRITE pipe */
     close(fds[1]);
 
     if (!pipe_out)
         close(fds[0]);
-    else
-        return fds[0];
 
+    /* Return the read pipe file descriptor*/
     return fds[0];
 }
 
@@ -116,10 +125,10 @@ int _help(char **args)
 
 int __exit(char **args)
 {
-    return 0;
+    exit(0);
 }
 
-int execute(char **args, int fd_in, int pipe_out)
+int execute(char **args, int fd_in, int pipe_out, char *outfilename)
 {
     int i;
 
@@ -129,6 +138,7 @@ int execute(char **args, int fd_in, int pipe_out)
         return 1;
     }
 
+    /* Check if the program is builtin */
     for (i = 0; i < builtins(); i++)
     {
         if (strcmp(args[0], builtin_str[i]) == 0)
@@ -137,5 +147,6 @@ int execute(char **args, int fd_in, int pipe_out)
         }
     }
 
-    return launch(args, fd_in, pipe_out);
+    /* Launch the program */
+    return launch(args, fd_in, pipe_out, outfilename);
 }
