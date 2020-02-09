@@ -50,7 +50,7 @@ int launch(char **args, int fd_in, int pipe_out, char *outfilename)
             dup2(fd_in, STDIN_FILENO);
         }
 
-        if (outfilename != NULL)
+        if (outfilename[0] != '\0')
         {
             freopen(outfilename, "a+", stdout);
         }

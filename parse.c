@@ -2,6 +2,7 @@
 #include "parse.h"
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
 /* Flags */
 static int PIPE_IN;
@@ -99,20 +100,15 @@ static void split(char **args, char *cmd)
  *
  * Returns a copy of the filename.
  */
-char *get_filename(char **line)
+static void get_filename(char *filename, char **line)
 {
-    /* Skip leading whitespaces */
     *line = skipspace(*line);
-    /* Copy line */
-    char *filename = strdup(*line);
     int i = 0;
-    /* Search for the first special char or space */
-    while ((filename[i] != '\0') && (!isreserved(filename[i])) && !(isspace(filename[i]))) ++i;
-    /* Character @ pos i is not part of the filename */
-    filename[i] = '\0';
-    /* Remove the filename from line, so that the next command can be executed */
-    *line = *line + i;
-    return filename;
+    while ((**line != '\0') && (!isreserved(**line)) && !(isspace(**line)) && (i < PATH_MAX))
+    {
+        filename[i++] = **line;
+        ++*line;
+    }
 }
 
 /**
@@ -124,18 +120,14 @@ int run_command(char **line, char *next)
 {
     static char *args[MAX_ARGS];
     char *command = *line;
-    char *outfilename = NULL;
+    char outfilename[PATH_MAX] = {'\0'};
+    *line = next + 1;
+
     if (REDIR)
     {
         /* Get the filename for redirects */
         REDIR = 0;
-        *line = next + 1;
-        outfilename = get_filename(line);
-    }
-    else
-    {
-        /* Move pointer upwards */
-        *line = next + 1;
+        get_filename(outfilename, line);
     }
     /* Split the line into single words separated by space */
     split(args, command);
