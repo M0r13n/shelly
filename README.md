@@ -56,6 +56,33 @@ $ ./shelly
 >>> curl -L google.com > google.html
 ```
 
+# Memory leaks ?
+
+```sh
+➜  ~ leaks 36673         
+Process:         shelly [36673]
+Path:            /Users/USER/*/shelly
+Load Address:    0x109943000
+Identifier:      shelly
+Version:         ???
+Code Type:       X86-64
+Parent Process:  zsh [1331]
+
+Date/Time:       2020-02-09 13:06:38.209 +0100
+Launch Time:     2020-02-09 13:05:12.482 +0100
+OS Version:      Mac OS X 10.15.2 (19C57)
+Report Version:  7
+Analysis Tool:   /usr/bin/leaks
+
+Physical footprint:         508K
+Physical footprint (peak):  508K
+----
+
+leaks Report Version: 4.0
+Process 36673: 279 nodes malloced for 184 KB
+Process 36673: 0 leaks for 0 total leaked bytes.
+``
+
 # How does it work?
 The following is a small and incomplete writeup for me to consolidate what i've learned.
 
