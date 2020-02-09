@@ -1,6 +1,5 @@
 #include "process.h"
 #include "parse.h"
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -10,115 +9,6 @@ static int PIPE_OUT;
 static int REDIR;
 const char specials[] = "|;&>";
 
-/**
- * Adds a token into a 2D array.
- * Bounds are checked.
- */
-void tok_add(char **args, char *token, int i)
-{
-    if (i > MAX_ARGS)
-    {
-        exit(ERR_MAX_ARGS);
-    }
-    if (token == NULL)
-    {
-        args[i] = NULL;
-        return;
-    }
-    args[i] = strdup(token);
-}
-
-/**
- * Wrapper around malloc, that exits the program if malloc fails.
- */
-void *malloc_safe(void *ptr, size_t siz)
-{
-    ptr = malloc(siz);
-    if (ptr == NULL)
-    {
-        exit(ERR_MALLOC);
-    }
-    return ptr;
-}
-
-
-/**
- * Wrapper around realloc, that exits the program if realloc fails.
- */
-void *realloc_safe(void *ptr, size_t siz)
-{
-    ptr = realloc(ptr, siz);
-    if (ptr == NULL)
-    {
-        exit(-1);
-    }
-    return ptr;
-}
-
-/**
- * Tokenizes a string.
- * Splits the string into tokens separated by single space.
- */
-void tokenize(char **args, const char *line)
-{
-    /* Buffer sizes for both the current token and the list of tokens */
-    int token_buf_siz = BUF_SIZE;
-
-    /* Variables for iterating over line */
-    int cur_chr = 0, cur = 0, escaped = 0;
-
-    /* Number of chars in current token */
-    int tok_pos = 0;
-
-    /* Total number of token */
-    int tot_tok_num = 0;
-
-    /* Buffers */
-    char *token = malloc_safe(&token, token_buf_siz);
-
-    /* Iterate over line char by char */
-    while ((cur_chr = line[cur++]) != '\0')
-    {
-        /* Check for unescaped delimiters */
-        if ((cur_chr == ' ' || cur_chr == '\t') && !escaped)
-        {
-            /* Skip duplicate delimiters */
-            if (tok_pos > 0)
-            {
-                /* Store the token */
-                token[tok_pos] = '\0';
-                tok_add(args, token, tot_tok_num++);
-
-                /* Reset the token vars and allocate new space */
-                tok_pos = 0;
-                token_buf_siz = BUF_SIZE;
-            }
-            continue;
-        }
-
-        /* Enter or leave escape mode */
-        if (cur_chr == '\"')
-        {
-            escaped = 1 - escaped;
-            continue;
-        }
-
-        /* Store the char and grow buffer if necessary */
-        token[tok_pos++] = (char) cur_chr;
-        if (tok_pos >= token_buf_siz)
-        {
-            token_buf_siz += BUF_SIZE;
-            token = realloc_safe(token, token_buf_siz);
-        }
-    }
-    if (tok_pos)
-    {
-        /* Copy the last token if it exists */
-        token[tok_pos] = '\0';
-        tok_add(args, token, tot_tok_num++);
-    }
-    tok_add(args, NULL, tot_tok_num);
-}
 
 /**
  * Reset all Flags.
@@ -153,6 +43,55 @@ int isreserved(int c)
 }
 
 /**
+ * Split a line into single words separated by whitespaces.
+ * Multiple whitespaces are omitted.
+ *
+ * The cmd string is altered. There are \0's inserted to terminate substrings of cmd.
+ *
+ * Args then stores pointers to positions in cmd. Each pointer points to the beginning of a word.
+ *
+ * Example:
+ * -------------------------------------
+ * Input:
+ * A string (with whitespaces).
+ * cmd = "ls -l"
+ *
+ * Output:
+ * cmd = "ls\0   -l\0"
+ *        ^      ^
+ *        |      |
+ * args= [p0,    p1]
+ *
+ */
+static void split(char **args, char *cmd)
+{
+    /* Skip leading whitespaces (if any) */
+    cmd = skipspace(cmd);
+    /* From there on search for the next whitespace */
+    char *next = strchr(cmd, ' ');
+    int i = 0;
+
+    while ((next != NULL) && (i < MAX_ARGS - 2))
+    {
+        /* Next points to the first found whitespace */
+        next[0] = '\0';
+        /* Store a pointer to the string starting after next */
+        args[i++] = cmd;
+        /* Skip any leading whitespaces */
+        cmd = skipspace(next + 1);
+        /* Find the next space */
+        next = strchr(cmd, ' ');
+    }
+    /* Catch the last word */
+    if (cmd[0] != '\0')
+    {
+        args[i++] = cmd;
+    }
+    /* Args is terminated with NULL */
+    args[i] = NULL;
+}
+
+/**
  * Get the a sequence of connected chars.
  * Leading whitespaces are omitted.
  * Breaks as soon, as a space or a reserved character occurs.
@@ -183,10 +122,9 @@ char *get_filename(char **line)
  */
 int run_command(char **line, char *next)
 {
-    char *args[MAX_ARGS];
+    static char *args[MAX_ARGS];
     char *command = *line;
     char *outfilename = NULL;
-
     if (REDIR)
     {
         /* Get the filename for redirects */
@@ -199,8 +137,8 @@ int run_command(char **line, char *next)
         /* Move pointer upwards */
         *line = next + 1;
     }
-    /* Split the line into single words */
-    tokenize(args, command);
+    /* Split the line into single words separated by space */
+    split(args, command);
     return execute(args, PIPE_IN, PIPE_OUT, outfilename) * (PIPE_OUT > 0);
 }
 
@@ -219,21 +157,21 @@ void check_last(char *next)
 /**
  * Extract and then execute multiple commands from a single line.
  */
-int execute_commands(const char *line)
+int execute_commands(char *cmd)
 {
-    char *cur = strdup(line);
+    cmd = skipspace(cmd);
     /* strpbrk returns a pointer to the first occurrence of any of the special chars */
-    char *next = strpbrk(cur, specials);
+    char *next = strpbrk(cmd, specials);
     reset();
 
     /* If next is NULL there are no special chars left */
     while (next != NULL)
     {
         check_last(next);
-        PIPE_IN = run_command(&cur, next);
-        next = strpbrk(cur, specials);
+        PIPE_IN = run_command(&cmd, next);
+        next = strpbrk(cmd, specials);
     }
     /* The last command has no pipe */
     PIPE_OUT = 0;
-    return run_command(&cur, next);
+    return run_command(&cmd, next);
 }

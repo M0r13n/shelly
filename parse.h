@@ -1,11 +1,7 @@
 #ifndef SHELLY_PARSE_H
 #define SHELLY_PARSE_H
 
-#define BUF_SIZE 256
-#define MAX_ARGS  256
-
-#define ERR_MAX_ARGS -11
-#define ERR_MALLOC -2
+#define MAX_ARGS  512
 
 /**
  * Execute a line of commands.
@@ -18,6 +14,6 @@
  * Does not currently supports redirects.
  *
  */
-int execute_commands(const char *line);
+int execute_commands(char *cmd);
 
 #endif
