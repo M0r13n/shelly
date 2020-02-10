@@ -11,18 +11,20 @@ static char *line_read = (char *) NULL;
 
 /* The folder is stored and updated manually so that repeated access is fast.
  * Calling get_folder would be inefficient, because the full path needs to be traversed every time the method is called.
- * */
-static char *FOLDER = (char *) NULL;
+ */
+static char FOLDER[PATH_MAX] = {-1};
 
-char *get_folder()
+int get_folder(char *buffer, int siz)
 {
+    /* Get current (full) path */
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) == NULL)
     {
         perror("getcwd() error");
-        return NULL;
+        return -1;
     }
 
+    /* Search for last occurrence of a '/' (assumes that folder names are separated by '/') */
     char *pch;
     char *last = cwd;
     pch = strchr(cwd, '/');
@@ -36,24 +38,40 @@ char *get_folder()
         last = pch;
     }
 
-    return strdup(last + 1);
+    /* Copy the remaining part into buffer */
+    strncpy(buffer, last + 1, siz);
+    return 0;
 }
 
 void set_folder(char *name)
 {
-    FOLDER = strdup(name);
+    if (strstr(name, ".."))
+    {
+        /* Replace relative folders like '..' or '../..' with the actual name */
+        get_folder(FOLDER, PATH_MAX);
+    }
+    else
+    {
+        /* Copy the content */
+        FOLDER[0] = '\0';
+        strncat(FOLDER, name, PATH_MAX - 1);
+    }
 }
 
 char *cur_folder()
 {
-    if (FOLDER == NULL || strstr(FOLDER, ".."))
+    if (FOLDER[0] == -1)
     {
-        FOLDER = get_folder();
+        /* Get current folder on first start */
+        get_folder(FOLDER, PATH_MAX);
     }
+
     if (strlen(FOLDER) == 0)
     {
-        FOLDER = "~";
+        /* This is home dir */
+        strcpy(FOLDER, "~");
     }
+
     return FOLDER;
 }
 

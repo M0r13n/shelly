@@ -1,7 +1,6 @@
 #ifndef SHELLY_INPUT_H
 #define SHELLY_INPUT_H
 
-#define BUF_SIZE 256
 #define ANSI_BLUE "\x1b[34m"
 #define ANSI_RESET "\x1b[0m"
 
@@ -44,6 +43,12 @@ char *cur_folder();
  * Folders are tracked for better efficiency.
  */
 void set_folder(char *name);
+
+/**
+ * Get the current folder name.
+ * Writes content into buffer with siz checking.
+ */
+int get_folder(char *buffer, int siz);
 
 
 #endif

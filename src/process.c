@@ -105,9 +105,12 @@ int _cd(char **args)
         {
             perror("lsh");
         }
+        else
+        {
+            /* Update the current folder  only if chdir succeeded */
+            set_folder(args[1]);
+        }
     }
-    /* Update the current folder */
-    set_folder(args[1]);
     return 1;
 }
 

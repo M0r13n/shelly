@@ -26,13 +26,21 @@ Shelly is a **very basic** shell that I wrote to teach myself more about C and P
 
 
 # Compile
+#### Manually
 ```sh
-$ cmake . && make
+$ mkdir -p ./build && cd ./build && cmake ..  && make ; cd .. ; 
 ```
 
-# Usage
+#### Using build.sh
 ```sh
-$ ./shelly
+$ chmod +x ./build.sh && ./build.sh
+```
+
+# Run
+After you build **shelly** you can can it:
+
+```sh
+$ ./build/shelly
 ```
 
 # Examples

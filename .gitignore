@@ -1,8 +1,4 @@
 cmake-build-debug/
+build/
 .idea/
-*.o
-CMakeFiles/
-CMakeCache.txt
-*.cmake
 /shelly
-*.cbp
