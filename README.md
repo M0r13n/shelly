@@ -33,7 +33,7 @@ $ mkdir -p ./build && cd ./build && cmake ..  && make ; cd .. ;
 
 #### Using build.sh
 ```sh
-$ chmod +x ./build.sh && ./build.sh
+$ chmod +x ./scripts/build.sh && ./scripts/build.sh
 ```
 
 # Run
@@ -41,6 +41,17 @@ After you build **shelly** you can can it:
 
 ```sh
 $ ./build/shelly
+```
+
+# Run Tests
+#### Manually
+```sh
+$ mkdir -p ./build && cd ./build && cmake ..  && make && ctest ; cd .. ; 
+```
+
+#### Using **test.sh**
+```sh
+$ chmod +x ./scripts/test.sh && ./scripts/test.sh  ;
 ```
 
 # Examples
